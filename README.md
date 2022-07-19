@@ -63,3 +63,43 @@ You can compare the previous example with the code where we do not use the Micro
 Within the class *DataConfiguration* we now create an *EmbeddedStorageFoundation* instance ourselves instead of letting the integration code do this for ourselves.  The configuration is read from a properties file and the location of that file is retrieved from the Spring Boot configuration.  Of course, we might also read the individual configuration values from the Spring Boot configuration just as the integration does.
 
 Other than this, the project code is identical to the previous example.
+
+# Lazily started StorageManager
+
+See directory _lazy_.
+
+Within the storage foundation example, the MicroStream Storage manager is started when the Spring Boot application starts.  This is because the bean is also injected into the repositories that are created at boot time.
+
+There are 2 options to avoid this when you don't want or can't start the _StorageManager_ when the application is started.
+
+Use the Spring Boot configuration parameter to start all Beans lazily.
+
+````
+spring.main.lazy-initialization=true
+````
+
+This option is put in a comment into the _application.properties_ file of the _storage-foundation_ example so that you can test it out.
+
+In this case, all Spring beans are only created when they are accessed. In the case of the example, this means that the _StorageManager_ is only started with the first user request.
+
+If you don't want to have all Beans lazily created, you can make use of the @Inject  Provider class that is supported by Spring.
+
+An example is created in this _lazy_ program and you can find the following construct in the *UserRepository*:
+
+````
+public UserRepository(Provider<StorageManager> storageManagerProvider) {
+
+    this.storageManagerProvider = storageManagerProvider;
+}
+
+private Root getRoot() {
+    return (Root) storageManagerProvider.get().root();
+}
+````
+
+We do not use the _StorageManager_ itself in the constructor but ask Spring for an implementation of a _Provider_ that will give us the Bean later on.
+
+When we need to access the Root object, we actually ask the _StorageManager_ from the provider and get to the Root object. So only when processing the user request, the StorageManager is initialized (if not done already previously), and it is not started at application startup.
+
+
+Do realise that starting the _StorageManager_ might be required for your use case when not all resources are available at application startup (like a database if you really need to use the database as storage target with MicroStream) it has a performance impact on the first user request as the _Storagemanager_  loads the Root object data at that moment.
