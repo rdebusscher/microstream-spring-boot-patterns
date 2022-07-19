@@ -52,3 +52,14 @@ Since we should not return modifiable collections from the _Root_ object, as tha
 Each Repository Spring bean has a constructor that takes the _StorageManager_ as a parameter.  The _Root_ object is retrieved from this parameter so that the _Repository_ code can delegate actions on the _database_ to the _Root_ object.
 
 Have a look at the file _commands.txt_ for the example of CURL commands that the application support.
+
+# Plain
+
+Without the integration code, see directory _plain_.
+
+You can compare the previous example with the code where we do not use the MicroStream Spring Boot integration.  The only difference is in how the configuration values for the _StorageManager_ are retrieved.
+
+
+Within the class *DataConfiguration* we now create an *EmbeddedStorageFoundation* instance ourselves instead of letting the integration code do this for ourselves.  The configuration is read from a properties file and the location of that file is retrieved from the Spring Boot configuration.  Of course, we might also read the individual configuration values from the Spring Boot configuration just as the integration does.
+
+Other than this, the project code is identical to the previous example.
