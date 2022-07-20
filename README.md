@@ -103,3 +103,68 @@ When we need to access the Root object, we actually ask the _StorageManager_ fro
 
 
 Do realise that starting the _StorageManager_ might be required for your use case when not all resources are available at application startup (like a database if you really need to use the database as storage target with MicroStream) it has a performance impact on the first user request as the _Storagemanager_  loads the Root object data at that moment.
+
+# Proposed changes
+
+The following is the list of proposed changes to make the code (of your application) better structured and integration with MicroStream easier.
+
+The examples require the code from https://github.com/microstream-one/microstream/pull/390 to compile and work.
+
+# Foundation customizer
+
+See directory _foundation-customizer_
+
+The new version of the integration has implemented the following steps so that you can directly use a _StorageMaager_ based Spring bean. (and as the developer keep full control of customizations and initializations)
+
+- Build `EmbeddedStorageFoundation` from the Configuration values
+- Allow customizations by the developer `EmbeddedStorageFoundation` using `EmbeddedStorageFoundationCustomizer`
+- Integration creates the `StorageManager`
+- Allow initialization of the `StorageManager` (like adding initial data when storage is created at the first run) through `StorageManagerInitializer`.
+
+The code within the `DataConfiguration` of the _storage-foundation_ becomes now better structured and results in the classes `FoundationCustomizer` and `RootPreparation`.
+
+```
+@Component
+public class FoundationCustomizer implements EmbeddedStorageFoundationCustomizer {
+
+    @Override
+    public void customize(EmbeddedStorageFoundation embeddedStorageFoundation) {
+      // Do customization
+    }
+}
+```
+
+```
+@Component
+public class RootPreparation implements StorageManagerInitializer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RootPreparation.class);
+
+    @Override
+    public void initialize(StorageManager storageManager) {
+       // Check if Root is available (and assign if needed) and add initial data if needed.
+    }
+}    
+```
+
+The addition of these 2 interfaces and using them when the Spring Bean for the _StorageManager_ is created, makes the code better structured as each class has its own purpose.
+
+# Root Spring Bean
+
+See directory _root-bean_.
+
+Within the _Repository_ beans, we accessed the Root object through the _StorageManager_ bean.  Although this works, it is a bit cumbersome to always retrieve the root in that way.
+
+With this updated version of the integration, the Root object can also be turned into a Spring Bean by annotation it with `@Storage`.
+
+```
+@Storage
+public class Root {
+
+    @Autowired
+    private transient StorageManager storageManager;
+```
+
+The _storage_ annotation is a custom annotation that is both a `@Component` and `@Qualifier`.  That way it can be detected by the Spring Boot integration and made sure that it is a Spring Bean but also correctly registered with the Storage manager.
+
+Since it is a Spring Bean, you can also inject other beans into it, like the _StorageBean_. Since the integration is responsible for creating the Root object instance if needed (through a special factory method) using standard Java constructs, only Field and Setter injection is allowed (and not constructor injection)
