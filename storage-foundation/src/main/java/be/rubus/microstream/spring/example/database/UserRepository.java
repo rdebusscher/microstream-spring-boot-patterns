@@ -9,17 +9,17 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Component
 public class UserRepository {
 
     private final Root root;
 
-    private final ReentrantReadWriteLock userLock = new ReentrantReadWriteLock();
+    private final Locks locks;
 
-    public UserRepository(StorageManager storageManager) {
+    public UserRepository(StorageManager storageManager, Locks locks) {
         root = (Root) storageManager.root();
+        this.locks = locks;
     }
 
     public List<User> getAll() {
@@ -27,75 +27,65 @@ public class UserRepository {
     }
 
     public Optional<User> getById(String id) {
-        userLock.readLock().lock();
-        try {
-            return root.getUsers().stream()
-                    .filter(u -> u.getId().equals(id))
-                    .findAny();
-        } finally {
-            userLock.readLock().unlock();
-        }
+        return locks.readAction(Locks.USERS,
+                () -> root.getUsers().stream()
+                        .filter(u -> u.getId().equals(id))
+                        .findAny()
+        );
     }
 
     public Optional<User> findByEmail(String email) {
-        userLock.readLock().lock();
-        try {
-
-            return root.getUsers().stream()
-                    .filter(u -> email.equals(u.getEmail()))
-                    .findAny();
-        } finally {
-            userLock.readLock().unlock();
-        }
+        return locks.readAction(Locks.USERS,
+                () -> root.getUsers().stream()
+                        .filter(u -> email.equals(u.getEmail()))
+                        .findAny()
+        );
 
     }
 
     public User add(CreateUser user) {
-        userLock.writeLock().lock();
-        try {
-            User result;
+        // This block also protects that multiple threads modify the User collection
+        // at the time MicroStream stores the changes (avoids ConcurrentModificationException)
 
-            // This block also protects that multiple threads modify the User collection
-            // at the time MicroStream stores the changes (avoids ConcurrentModificationException)
-            Optional<User> byEmail = findByEmail(user.getEmail());
-            if (byEmail.isPresent()) {
-                throw new UserAlreadyExistsException();
-            }
-            result = root.addUser(new User(user.getName(), user.getEmail()));
+        return locks.writeAction(Locks.USERS,
+                () -> {
+                    Optional<User> byEmail = findByEmail(user.getEmail());
+                    if (byEmail.isPresent()) {
+                        throw new UserAlreadyExistsException();
+                    }
+                    return root.addUser(new User(user.getName(), user.getEmail()));
 
-            return result;
-        } finally {
-            userLock.writeLock().unlock();
-        }
+                }
+        );
 
     }
 
     public User updateEmail(String id, String email) {
-        userLock.writeLock().lock();
-        try {
-            Optional<User> byId = getById(id);
-            if (byId.isEmpty()) {
-                throw new UserNotFoundException();
-            }
-            User user = byId.get();
-            user.setEmail(email);
-            root.updateUser(user);
-            return user;
-        } finally {
-            userLock.writeLock().unlock();
-        }
+        return locks.writeAction(Locks.USERS,
+                () -> {
+                    Optional<User> byId = getById(id);
+                    if (byId.isEmpty()) {
+                        throw new UserNotFoundException();
+                    }
+                    User user = byId.get();
+                    user.setEmail(email);
+                    root.updateUser(user);
+                    return user;
+
+                }
+        );
     }
 
     public void removeById(String id) {
-        userLock.writeLock().lock();
-        try {
+        locks.writeAction(Locks.USERS,
+                () -> {
+                    Optional<User> userById = root.getUsers().stream()
+                            .filter(u -> u.getId().equals(id))
+                            .findAny();
+                    userById.ifPresent(root::removeUser);
+                    return null;
+                }
+        );
 
-            Optional<User> userById = root.getUsers().stream()
-                    .filter(u -> u.getId().equals(id))
-                    .findAny();
-            userById.ifPresent(root::removeUser);
-        } finally {
-            userLock.writeLock().unlock();
-        }
     }
 }
