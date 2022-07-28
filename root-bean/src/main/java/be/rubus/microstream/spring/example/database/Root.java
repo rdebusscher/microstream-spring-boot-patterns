@@ -5,7 +5,6 @@ import be.rubus.microstream.spring.example.model.User;
 import one.microstream.integrations.spring.boot.types.Storage;
 import one.microstream.storage.types.StorageManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +12,7 @@ import java.util.List;
 @Storage
 public class Root {
 
+    // No constructor injection supported on @Storage Beans.
     @Autowired
     private transient StorageManager storageManager;
 

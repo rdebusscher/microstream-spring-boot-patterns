@@ -4,6 +4,7 @@ import be.rubus.microstream.spring.example.database.Root;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
 import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.StorageManager;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -60,6 +61,9 @@ public class DataConfiguration {
     private EmbeddedStorageFoundation<?> embeddedStorageFoundation(Environment env) {
         String configLocation = env.getProperty("one.microstream.config");
 
+        if (configLocation == null) {
+            throw new BeanCreationException("Unable to create StorageManager as the configuration property 'one.microstream.config' could not be resolved");
+        }
         return EmbeddedStorageConfiguration.load(configLocation)
                 .createEmbeddedStorageFoundation();
 

@@ -1,7 +1,6 @@
 package be.rubus.microstream.spring.example.database;
 
 import be.rubus.microstream.spring.example.model.Book;
-import one.microstream.storage.types.StorageManager;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
