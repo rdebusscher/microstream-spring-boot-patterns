@@ -19,17 +19,17 @@ curl -X POST 'http://localhost:8888/user/' \
 curl  'http://localhost:8888/book/'
 
 # List books of user (use id of added user)
-curl  'http://localhost:8888/user/dc983536-3e00-4e9e-a964-1f361d0562dd/book'
+curl  'http://localhost:8888/user/f6fda09b-2cc7-44cb-b9b1-56e289ebb885/book'
 
 # Add book to user (use id of added user)
-curl -X POST 'http://localhost:8888/user/dc983536-3e00-4e9e-a964-1f361d0562dd/book/9780141321097'
+curl -X POST 'http://localhost:8888/user/f6fda09b-2cc7-44cb-b9b1-56e289ebb885/book/9780141321097'
 
 # List again
-curl  'http://localhost:8888/user/dc983536-3e00-4e9e-a964-1f361d0562dd/book'
+curl  'http://localhost:8888/user/f6fda09b-2cc7-44cb-b9b1-56e289ebb885/book'
 
 # Update user
 
-curl -X PATCH 'http://localhost:8888/user/dc983536-3e00-4e9e-a964-1f361d0562dd' \
+curl -X PATCH 'http://localhost:8888/user/f6fda09b-2cc7-44cb-b9b1-56e289ebb885' \
 --header 'Content-Type: application/json' \
 --data-raw '{"email": "r.debusscher@microstream.one"}'
 
@@ -38,4 +38,4 @@ curl -X PATCH 'http://localhost:8888/user/dc983536-3e00-4e9e-a964-1f361d0562dd' 
 # Are data stored?
 
 curl  'http://localhost:8888/user/'
-curl  'http://localhost:8888/user/dc983536-3e00-4e9e-a964-1f361d0562dd/book'
+curl  'http://localhost:8888/user/f6fda09b-2cc7-44cb-b9b1-56e289ebb885/book'

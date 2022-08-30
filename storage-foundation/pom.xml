@@ -19,8 +19,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
 
-        <!--microstream-version>07.00.00-MS-GA</microstream-version-->
-        <microstream-version>08.00.00-MS-GA-SNAPSHOT</microstream-version>
+        <microstream.version>07.01.00-MS-beta2</microstream.version>
     </properties>
 
     <dependencies>
@@ -32,7 +31,7 @@
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-integrations-spring-boot</artifactId>
-            <version>${microstream-version}</version>
+            <version>${microstream.version}</version>
         </dependency>
 
     </dependencies>
