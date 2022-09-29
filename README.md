@@ -114,7 +114,7 @@ The examples require the code from https://github.com/microstream-one/microstrea
 
 See directory _foundation-customizer_
 
-The new version of the integration has implemented the following steps so that you can directly use a _StorageMaager_ based Spring bean. (and as the developer keep full control of customizations and initializations)
+The new version of the integration has implemented the following steps so that you can directly use a _StorageManager_ based Spring bean. (and as the developer keep full control of customizations and initializations)
 
 - Build `EmbeddedStorageFoundation` from the Configuration values
 - Allow customizations by the developer `EmbeddedStorageFoundation` using `EmbeddedStorageFoundationCustomizer`
