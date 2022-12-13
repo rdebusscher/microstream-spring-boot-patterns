@@ -1,0 +1,41 @@
+# List all users
+curl  'http://localhost:8888/user'
+
+# List non-existing  user -> status 404
+curl -v 'http://localhost:8888/user/abc'
+
+# List user by email.
+curl  'http://localhost:8888/user/by/jane.doe@acme.org'
+
+# Add user
+curl -X POST 'http://localhost:8888/user' \
+--header 'Content-Type: application/json' \
+--data-raw '{"name": "Rudy", "email": "rudy@microstream.one"}'
+
+# -> note the id of this added user and use it in the other commands of this file
+
+
+# List all books
+curl  'http://localhost:8888/book'
+
+# List books of user (use id of added user)
+curl  'http://localhost:8888/user/097828af-8bbb-4420-8fb8-e3938b044a26/book'
+
+# Add book to user (use id of added user)
+curl -X POST 'http://localhost:8888/user/097828af-8bbb-4420-8fb8-e3938b044a26/book/9780141321097'
+
+# List again
+curl  'http://localhost:8888/user/097828af-8bbb-4420-8fb8-e3938b044a26/book'
+
+# Update user
+
+curl -X PATCH 'http://localhost:8888/user/097828af-8bbb-4420-8fb8-e3938b044a26' \
+--header 'Content-Type: application/json' \
+--data-raw '{"email": "r.debusscher@microstream.one"}'
+
+
+## Stop and start Spring boot application
+# Are data stored?
+
+curl  'http://localhost:8888/user'
+curl  'http://localhost:8888/user/097828af-8bbb-4420-8fb8-e3938b044a26/book'
