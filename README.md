@@ -1,5 +1,8 @@
 # MicroStream Spring Boot Usage Patterns
 
+The **v2** directory contains the examples with Spring Boot 2.x. **v3** is for Spring Boot 3.x
+
+
 Patterns in using MicroStream's Spring Boot integration.
 
 
