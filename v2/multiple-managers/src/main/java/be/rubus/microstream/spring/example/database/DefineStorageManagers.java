@@ -15,12 +15,12 @@ public class DefineStorageManagers {
         this.provider = provider;
     }
 
-    @Bean
+    @Bean(destroyMethod = "shutdown")
     @Qualifier("green")
     public EmbeddedStorageManager getGreenManager() {
         return provider.get(DatabaseColor.GREEN.getName());
     }
-    @Bean
+    @Bean(destroyMethod = "shutdown")
     @Qualifier("red")
     public EmbeddedStorageManager getRedManager() {
         return provider.get(DatabaseColor.RED.getName());

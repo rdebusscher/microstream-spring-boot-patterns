@@ -15,8 +15,8 @@ public class RootPreparationOfGreenDatabase implements StorageManagerInitializer
 
     @Override
     public void initialize(StorageManager storageManager) {
-        if (DatabaseColor.RED.getName().equals(storageManager.databaseName())) {
-            // This customizer operates on the Red database
+        if (!DatabaseColor.GREEN.getName().equals(storageManager.databaseName())) {
+            // This customizer operates on the Green database
             return;
         }
 

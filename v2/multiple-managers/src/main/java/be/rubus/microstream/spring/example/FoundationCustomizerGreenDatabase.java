@@ -15,7 +15,7 @@ public class FoundationCustomizerGreenDatabase implements EmbeddedStorageFoundat
 
     @Override
     public void customize(final EmbeddedStorageFoundation embeddedStorageFoundation) {
-        if (DatabaseColor.RED.getName().equals(embeddedStorageFoundation.getDataBaseName())) {
+        if (!DatabaseColor.GREEN.getName().equals(embeddedStorageFoundation.getDataBaseName())) {
             // This customizer operates on the Green database
             return;
         }

@@ -192,13 +192,13 @@ public class DefineStorageManagers {
         this.provider = provider;
     }
 
-    @Bean
+    @Bean(destroyMethod = "shutdown")
     @Qualifier("green")
     public EmbeddedStorageManager getGreenManager() {
         return provider.get(DatabaseColor.GREEN.getName());
     }
 
-    @Bean
+    @Bean(destroyMethod = "shutdown")
     @Qualifier("red")
     public EmbeddedStorageManager getRedManager() {
         return provider.get(DatabaseColor.RED.getName());
@@ -237,7 +237,7 @@ public class RootPreparationOfRedDatabase implements StorageManagerInitializer {
 
     @Override
     public void initialize(StorageManager storageManager) {
-        if (DatabaseColor.GREEN.getName().equals(storageManager.databaseName())) {
+        if (!DatabaseColor.RED.getName().equals(storageManager.databaseName())) {
             // This customizer operates on the Red database
             return;
         }
