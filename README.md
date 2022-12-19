@@ -171,3 +171,82 @@ public class Root {
 The _storage_ annotation is a custom annotation that is both a `@Component` and `@Qualifier`.  That way it can be detected by the Spring Boot integration and made sure that it is a Spring Bean but also correctly registered with the Storage manager.
 
 Since it is a Spring Bean, you can also inject other beans into it, like the _StorageBean_. Since the integration is responsible for creating the Root object instance if needed (through a special factory method) using standard Java constructs, only Field and Setter injection is allowed (and not constructor injection)
+
+#Multiple Managers
+
+See directory _multiple-managers_
+
+This requires version 8.0 (or [this PR](https://github.com/microstream-one/microstream/pull/490))
+
+There might be situations in that you want to make use of multiple _StorageManager_s. Just like you have applications that talk to multiple databases. This is also possible with MicroStream. And with version 8.0 there will be support within the Spring Boot integration to define multiple Storage Managers that are integrated as Spring Beans.
+
+If you have multiple beans of the same type, you need to make a distinction between them through the use of _Qualifiers_ in Spring.  Also in case you want to have multiple Storage Managers. Since we cannot know the name of the labels you want to give each StorageManager, you need a little Configuration Bean to configure the beans. But you can make use of a _Provider_ from the integration code so that the amount of code that you need to write is very limited.
+
+```
+@Configuration
+public class DefineStorageManagers {
+
+    private final StorageManagerProvider provider;
+
+    public DefineStorageManagers(StorageManagerProvider provider) {
+        this.provider = provider;
+    }
+
+    @Bean
+    @Qualifier("green")
+    public EmbeddedStorageManager getGreenManager() {
+        return provider.get(DatabaseColor.GREEN.getName());
+    }
+
+    @Bean
+    @Qualifier("red")
+    public EmbeddedStorageManager getRedManager() {
+        return provider.get(DatabaseColor.RED.getName());
+    }
+}
+```
+
+You can freely choose the name of the class, as long as you annotate it with the `@Configuration`Spring annotation. You need to inject the `StorageManagerProvider` bean that is available through the integration code so that you can call the method `.get(qualifier)` on it to instantiate and expose a `StorageManager`.  The qualifier label and the method parameter should match (for your own ease). Within the code, I made use of an enum but an annotation member doesn't allow it since you can only provide constants.
+
+The qualifier label is also used as a prefix to look up the configuration values. For the above example, you could have the following entries in the configuration file
+
+```
+one.microstream.red.storage-directory=red-db
+one.microstream.red.channel-count=2
+
+one.microstream.green.storage-directory=green-db
+one.microstream.green.channel-count=1
+```
+
+But of course, all storage types (disk, database, etc ...) are supported, just as we have seen earlier. Don't forget to include also the qualifier label as part of the configuration key as shown in the example.
+
+Also, the `@Storage` annotation and `StorageManagerInitializer` and `EmbeddedStorageFoundationCustomizer` concepts are supported when you make use of multiple _Storage Managers_.
+
+In the case of the @Storage annotation, also add the correct `Qualifier` annotation. That way, the integration knows which class it needs t associate with which Storage Manager.
+
+```
+@Storage
+@Qualifier("red")
+public class Products {
+```
+
+And when you have defined a bean that implements `StorageManagerInitializer` and `EmbeddedStorageFoundationCustomizer`, you can find out based on the `databaseName` of the _Foundation_ of the _StorageManager_ which variant is passed in.  An example is
+
+@Component
+public class RootPreparationOfRedDatabase implements StorageManagerInitializer {
+
+    @Override
+    public void initialize(StorageManager storageManager) {
+        if (DatabaseColor.GREEN.getName().equals(storageManager.databaseName())) {
+            // This customizer operates on the Red database
+            return;
+        }
+        // Perform the required initialisation for the Red root = Products
+    }
+}
+```
+
+
+
+
+

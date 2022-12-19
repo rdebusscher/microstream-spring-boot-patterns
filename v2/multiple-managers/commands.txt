@@ -1,0 +1,15 @@
+# Operations on the Red 'database'
+curl  'http://localhost:8888/products'
+
+curl -X POST http://localhost:8888/products -H 'Content-Type: application/json' -d '{"id":4,"name":"pear","score":4}'
+
+curl -X DELETE http://localhost:8888/product/3
+
+# Operations on the Green 'database'
+
+curl  'http://localhost:8888/names'
+
+curl -X POST 'http://localhost:8888/names/Florian'
+curl -X POST 'http://localhost:8888/names/Christian'
+curl -X DELETE 'http://localhost:8888/names/Rudy'
+
