@@ -172,7 +172,7 @@ The _storage_ annotation is a custom annotation that is both a `@Component` and 
 
 Since it is a Spring Bean, you can also inject other beans into it, like the _StorageBean_. Since the integration is responsible for creating the Root object instance if needed (through a special factory method) using standard Java constructs, only Field and Setter injection is allowed (and not constructor injection)
 
-#Multiple Managers
+# Multiple Managers
 
 See directory _multiple-managers_
 
@@ -245,6 +245,22 @@ public class RootPreparationOfRedDatabase implements StorageManagerInitializer {
     }
 }
 ```
+
+# Multiple Manager (variation)
+
+See directory _primary_
+
+Instead of defining 2 _named_ managers, you can also make use of the _primary_ manager that is available and use it when you only need one manager.
+
+The changes that are required to use this variation with the previous multiple manager's example, are minimal.
+
+You only have to define one manager within the `DefineStorageManagers` configuration class. For example, you can remove the definition of the Red variant and only keep the Green one (and call it maybe _secondary_.
+
+This change needs to be reflected in the configuration keys.  The _Primary_ storage manager reads the keys without a label, so we only need to have the `one.microstream.` prefix.  For the secondary, we still need the correct label which is the value of the parameter we use when we call `StorageManagerProvider.get()`.
+
+If we define a Root object through the `@Storage` annotation, we don't need to specify a Qualifier if it is the root for the primary _StorageManager_. We only need it for additional ones, like the secondary.
+
+And when we have implemented classes that implement the `StorageManagerInitializer` or `EmbeddedStorageFoundationCustomizer` interfaces, we must use the _'Primary'_ as the value for the database name to detect if the methods are called for the Primary _StorageManager_.
 
 
 
