@@ -1,0 +1,20 @@
+# Commands for testing
+
+## Get the country list, contains also a dummy item with date to test cache
+curl 'http://localhost:8080/country'
+
+Repeat this command within the minute.
+Wait also more than 1 minute -> new entries
+Restart application -> Keeps the old timestamp.
+
+
+curl 'http://localhost:8080/country/reset'
+
+## Example with manual accessing JCache manager - Not working
+
+curl 'http://localhost:8080/data'
+
+curl -X POST 'http://localhost:8080/data/Rudy'
+
+curl -X POST 'http://localhost:8080/data/Markus'
+

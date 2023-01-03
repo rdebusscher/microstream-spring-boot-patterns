@@ -232,6 +232,7 @@ public class Products {
 
 And when you have defined a bean that implements `StorageManagerInitializer` and `EmbeddedStorageFoundationCustomizer`, you can find out based on the `databaseName` of the _Foundation_ of the _StorageManager_ which variant is passed in.  An example is
 
+```
 @Component
 public class RootPreparationOfRedDatabase implements StorageManagerInitializer {
 
@@ -262,6 +263,60 @@ If we define a Root object through the `@Storage` annotation, we don't need to s
 
 And when we have implemented classes that implement the `StorageManagerInitializer` or `EmbeddedStorageFoundationCustomizer` interfaces, we must use the _'Primary'_ as the value for the database name to detect if the methods are called for the Primary _StorageManager_.
 
+
+# Spring Cache integration
+
+See directory _cache_
+
+MicroStream can be used as Spring Cache provider and the cache values will be persisted so that you have an already filled cache when your application starts. The application within this directory shows an example how you can achieve this.
+
+In addition to the _microstream-integrations-spring-boot_ artefact, you also need to add the _microstream-cache_ to have the Cache API and MicroStream implementation code available within your project. For Spring Boot, you need the _spring-boot-starter-cache_ artifact.
+
+Following configuration steps are needed.
+
+Define the annotation `@EnableCaching` on the Spring Boot application class, together with the `@SpringBootApplication` annotation.
+
+Define a Spring Bean that implements the interface `org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer`. You can inject the `EmbeddedStorageManager` that is created by the integration code and configure within the `customize()` method the caches. For each cache you need to specify the name and the Expiry Policy.  Have a look at the `CacheSetup` class.
+
+```
+    private void defineCache(CacheManager cacheManager, String cacheName, Duration duration) {
+        CacheConfiguration<?, ?> configuration = CacheConfiguration
+                .Builder(Object.class, Object.class, cacheName, storageManager)
+                .expiryPolicyFactory(CreatedExpiryPolicy.factoryOf(duration))
+                .build();
+
+        cacheManager.createCache(cacheName, configuration);
+    }
+```
+
+The built in `SimpleKey`implementation that is used for the cache key is not useable with MicroStream. Its `hashCode` value is calculated when the instance is created and stored in a _transient_ field. This transient value is not persisted by MicroStream and thus all the key values loose their hash value which is used to lookup values. So after a restart of the applications, no keys are detected anymore and it appears that the cache is empty.  To Solve this you need to create a custom key generator.
+
+```
+public class CustomKeyGenerator implements KeyGenerator {
+    @Override
+    public Object generate(Object target, Method method, Object... params) {
+        // Key should only depend on parameters so that @Cacheable and @CacheEvict annotated methods result in same key
+        return "Key" + StringUtils.arrayToDelimitedString(params, "_");
+    }
+}
+```
+
+This key generator is picked up by defining a class like `CacheConfig`
+
+```
+@Configuration
+public class CacheConfig implements CachingConfigurer {
+
+    public KeyGenerator keyGenerator() {
+        return new CustomKeyGenerator();
+    }
+}
+
+```
+
+The above steps are needed to make use of the `@Cacheable` and `@CacheEvict` on Spring bean methods to have automatic caching functionality.
+
+Please note that you can't combine the Cache functionality through MicroStream and using a Root object together. You need different Storage Managers for that purpose. Within version 8.0 of MicroStream, you can define multiple managers more easily.
 
 
 
