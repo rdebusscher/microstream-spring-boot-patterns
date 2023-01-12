@@ -1,11 +1,13 @@
 package be.rubus.microstream.spring.example.controller;
 
 import be.rubus.microstream.spring.example.database.Names;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
 @RestController
+@Service
 public class NamesController {
 
     private final Names greenRoot;

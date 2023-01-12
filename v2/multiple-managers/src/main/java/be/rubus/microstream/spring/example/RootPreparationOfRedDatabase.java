@@ -7,9 +7,11 @@ import one.microstream.integrations.spring.boot.types.config.StorageManagerIniti
 import one.microstream.storage.types.StorageManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
+@Qualifier("red")
 public class RootPreparationOfRedDatabase implements StorageManagerInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RootPreparationOfRedDatabase.class);
@@ -18,7 +20,8 @@ public class RootPreparationOfRedDatabase implements StorageManagerInitializer {
     public void initialize(StorageManager storageManager) {
         if (!DatabaseColor.RED.getName().equals(storageManager.databaseName())) {
             // This customizer operates on the Red database
-            return;
+            // The Qualifier makes that we should only get called for a Red StorageManager
+            throw new UnsupportedOperationException("This instance should only be called for a 'red' StorageManager ");
         }
 
         LOGGER.info("(From the App) Add basic data if needed (For Root of Red database)");
