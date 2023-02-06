@@ -1,0 +1,43 @@
+# List all users
+curl  'http://localhost:8888/user/'
+
+# List non existing  user -> status 404
+curl -v 'http://localhost:8888/user/abc'
+
+# List user by email.
+curl  'http://localhost:8888/user/by/jane.doe@acme.org'
+
+# Add user
+curl -X POST 'http://localhost:8888/user/' \
+--header 'Content-Type: application/json' \
+--data-raw '{"name": "Rudy", "email": "rudy@microstream.one"}'
+
+# -> store the id of this added user.
+
+
+# List all books
+curl  'http://localhost:8888/book/'
+
+# List books of user (use id of added user)
+curl  'http://localhost:8888/user/51f398ff-ef56-44e5-91da-ac0a78417569/book'
+
+# Add book to user (use id of added user)
+curl -X POST 'http://localhost:8888/user/51f398ff-ef56-44e5-91da-ac0a78417569/book/9780141321097'
+
+# List again
+curl  'http://localhost:8888/user/51f398ff-ef56-44e5-91da-ac0a78417569/book'
+
+# Update user
+
+curl -X PATCH 'http://localhost:8888/user/51f398ff-ef56-44e5-91da-ac0a78417569' \
+--header 'Content-Type: application/json' \
+--data-raw '{"email": "r.debusscher@microstream.one"}'
+
+
+## Stop and start Spring boot application
+# Are data stored?
+
+curl  'http://localhost:8888/user/'
+curl  'http://localhost:8888/user/51f398ff-ef56-44e5-91da-ac0a78417569/book'
+
+## When running from within your IDE, you can change the code and compile. Changes are picked by by a restarting Spring Boot container (dev-mode).

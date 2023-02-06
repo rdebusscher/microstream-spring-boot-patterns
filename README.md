@@ -264,6 +264,12 @@ If we define a Root object through the `@Storage` annotation, we don't need to s
 And when we have implemented classes that implement the `StorageManagerInitializer` or `EmbeddedStorageFoundationCustomizer` interfaces, we must use the _'Primary'_ as the value for the database name to detect if the methods are called for the Primary _StorageManager_.
 
 
+# Dev Mode
+
+See directory _dev-mode_
+
+With the changes of https://github.com/microstream-one/microstream/pull/518, it is no longer needed to define the MicroStream jars as part of the _restart classloader_ to have support for reloads.
+
 # Spring Cache integration
 
 See directory _cache_
