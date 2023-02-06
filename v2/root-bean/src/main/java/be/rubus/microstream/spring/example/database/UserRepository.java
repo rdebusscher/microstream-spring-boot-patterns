@@ -17,8 +17,8 @@ public class UserRepository {
 
     private final Locks locks;
 
-    public UserRepository(StorageManager storageManager, Locks locks) {
-        root = (Root) storageManager.root();
+    public UserRepository(Root root, Locks locks) {
+        this.root = root;
         this.locks = locks;
     }
 

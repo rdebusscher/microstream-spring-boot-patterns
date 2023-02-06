@@ -16,7 +16,7 @@ curl -X POST 'http://localhost:8888/user' \
 
 
 # List all books
-curl  'http://localhost:8888/book/'
+curl  'http://localhost:8888/book'
 
 # List books of user (use id of added user)
 curl  'http://localhost:8888/user/634fd353-623c-4f14-8203-b1ab06062037/book'
